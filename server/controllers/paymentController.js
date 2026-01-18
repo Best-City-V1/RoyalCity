@@ -1,5 +1,4 @@
 const asyncErrorHandler = require('../middlewares/helpers/asyncErrorHandler');
-// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const paytm = require('paytmchecksum');
 const https = require('https');
 const Payment = require('../models/paymentModel');
@@ -22,7 +21,6 @@ exports.processPayment = asyncErrorHandler(async (req, res, next) => {
     params["ORDER_ID"] = "oid" + uuidv4();
     params["CUST_ID"] = process.env.PAYTM_CUST_ID;
     params["TXN_AMOUNT"] = JSON.stringify(amount);
-    // params["CALLBACK_URL"] = `${req.protocol}://${req.get("host")}/api/v1/callback`;
     params["CALLBACK_URL"] = `https://${req.get("host")}/api/v1/callback`;
     params["EMAIL"] = email;
     params["MOBILE_NO"] = phoneNo;
@@ -76,7 +74,6 @@ exports.paytmResponse = (req, res, next) => {
                 /* for Staging */
                 hostname: 'securegw-stage.paytm.in',
                 /* for Production */
-                // hostname: 'securegw.paytm.in',
                 port: 443,
                 path: '/v3/order/status',
                 method: 'POST',
@@ -95,10 +92,7 @@ exports.paytmResponse = (req, res, next) => {
 
                 post_res.on('end', function () {
                     let { body } = JSON.parse(response);
-                    // let status = body.resultInfo.resultStatus;
-                    // res.json(body);
                     addPayment(body);
-                    // res.redirect(`${req.protocol}://${req.get("host")}/order/${body.orderId}`)
                     res.redirect(`https://${req.get("host")}/order/${body.orderId}`)
                 });
             });
